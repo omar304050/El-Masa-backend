@@ -11,8 +11,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 connectDB();
 
-app.use(cors({
-    origin: "http://localhost:5173",
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://YOUR-FRONTEND-DOMAIN.vercel.app"
+  ];
+  
+  app.use(cors({
+    origin: allowedOrigins
   }));
 
 app.use('/api/products', productRoutes);
