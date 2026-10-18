@@ -13,7 +13,7 @@ connectDB();
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://YOUR-FRONTEND-DOMAIN.vercel.app"
+    "https://el-masa-backend.vercel.app"
   ];
   
   app.use(cors({
