@@ -241,3 +241,11 @@ export const getProductById = async (req, res) => {
 }
 
 
+export const editProductById = async ()=>{
+
+  const {id} = req.params; 
+  const {name, description, price, stock, category, discountIsActive, discountPercentage} = req.body;
+  const product = await Product.findByIdAndUpdate(id,req.body);
+  if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+  return res.status(200).json({ success: true, message: "Product updated successfully", data: product });
+}

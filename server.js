@@ -4,6 +4,7 @@ import express from "express";
 import connectDB from "./src/config/db.js";
 import productRoutes from "./src/routes/ProductRoute.js";
 import cors from "cors";
+import cartRoutes from "./src/routes/CartRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,7 +23,7 @@ app.use(express.json());
 connectDB();
 
 app.use("/api/products", productRoutes);
-
+app.use("/api/cart", cartRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
