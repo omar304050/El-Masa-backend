@@ -1,6 +1,6 @@
 import Cart from "../models/CartModel.js";
 import { randomUUID } from "node:crypto";
-import Product from "../models/Product.js"; 
+import Product from "../models/ProductModel.js"; 
 
 
 
