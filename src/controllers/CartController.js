@@ -1,7 +1,9 @@
 import Cart from "../models/CartModel.js";
+import { randomUUID } from "node:crypto";
 
 
-const getCart = async (req , res) =>{
+
+export const  getCart = async (req , res) =>{
     const {cartId} = req.params;
 
     try {
@@ -24,4 +26,26 @@ const getCart = async (req , res) =>{
     }
 };
 
-export default getCart;
+
+
+
+export const createCart = async (req, res) => {
+  try {
+    const cart = await Cart.create({
+      cartId: randomUUID(),
+      items: [],
+    });
+    
+
+
+    res.status(201).json({
+      message: "Cart created successfully",
+      cartId: cart.cartId,
+      cart,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
