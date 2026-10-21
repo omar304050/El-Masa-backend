@@ -1,5 +1,6 @@
 import Cart from "../models/CartModel.js";
 import { randomUUID } from "node:crypto";
+import Product from "../models/Product.js"; 
 
 
 
@@ -49,3 +50,53 @@ export const createCart = async (req, res) => {
     });
   }
 };
+
+
+
+export const addToCart = async (req, res) => {
+    try {
+      const { cartId } = req.params;
+      const { productId, quantity } = req.body;
+  
+      const cart = await Cart.findOne({ cartId });
+  
+      if (!cart) {
+        return res.status(404).json({
+          message: "Cart not found",
+        });
+      }
+  
+      const product = await Product.findById(productId);
+  
+      if (!product) {
+        return res.status(404).json({
+          message: "Product not found",
+        });
+      }
+  
+      const existingItem = cart.items.find(
+        (item) => item.product.toString() === productId
+      );
+  
+      if (existingItem) {
+        existingItem.quantity += Number(quantity) || 1;
+      } else {
+        cart.items.push({
+          product: productId,
+          quantity: Number(quantity) || 1,
+        });
+      }
+  
+      await cart.save();
+  
+      res.status(200).json({
+        message: "Product added to cart successfully",
+        cart,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Server error",
+      });
+    }
+  };
+  
