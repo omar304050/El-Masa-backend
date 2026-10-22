@@ -15,9 +15,19 @@ export const  getCart = async (req , res) =>{
                 message: "Cart not found",
             });
         }
+        const totalQuantity = cart.items.reduce(
+            (sum, item) => sum + item.quantity,
+            0
+          );
+        const totalPrice = cart.items.reduce(
+            (sum, item) => sum + item.product.price * item.quantity,
+            0
+          );
         res.status(200).json({
             success: true,
             cart,
+            totalQuantity,
+            totalPrice,
         });
     } catch (error) {
         res.status(500).json({
