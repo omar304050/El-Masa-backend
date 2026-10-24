@@ -169,7 +169,8 @@ export const removeFromCart = async (req, res) => {
     
       return res.status(500).json({
         message: "Server error",
-        error: error.message,
+        error: String(error),
+        details: error?.message,
       });
     }
   };
