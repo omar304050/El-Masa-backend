@@ -150,6 +150,7 @@ export const removeFromCart = async (req, res) => {
 
 
  export const clearCart = async (req, res) => {
+  console.log("CLEAR CART CALLED", req.params.cartId);
     try {
       const { cartId } = req.params;
       const cart = await Cart.findOne({ cartId });
