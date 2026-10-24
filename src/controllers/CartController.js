@@ -165,11 +165,11 @@ export const removeFromCart = async (req, res) => {
         cart,
       });
     } catch (error) {
-      res.status(500).json({
+      console.error("CLEAR CART ERROR:", error);
+    
+      return res.status(500).json({
         message: "Server error",
         error: error.message,
-        stack: error.stack,
-        
       });
     }
   };
