@@ -147,3 +147,26 @@ export const removeFromCart = async (req, res) => {
       });
     }
   };
+
+
+  const clearCart = async (req, res) => {
+    try {
+      const { cartId } = req.params;
+      const cart = await Cart.findOne({ cartId });
+      if (!cart) {
+        return res.status(404).json({
+          message: "Cart not found",
+        });
+      }
+      cart.items = [];
+      await cart.save();
+      res.status(200).json({
+        message: "Cart cleared successfully",
+        cart,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Server error",
+      });
+    }
+  };
