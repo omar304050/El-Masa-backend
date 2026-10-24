@@ -149,7 +149,7 @@ export const removeFromCart = async (req, res) => {
   };
 
 
-  const clearCart = async (req, res) => {
+ export const clearCart = async (req, res) => {
     try {
       const { cartId } = req.params;
       const cart = await Cart.findOne({ cartId });
