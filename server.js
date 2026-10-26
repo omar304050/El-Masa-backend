@@ -4,7 +4,7 @@ import connectDB from "./src/config/db.js";
 import productRoutes from "./src/routes/ProductRoute.js";
 import cors from "cors";
 import cartRoutes from "./src/routes/CartRoutes.js";
-import guestSessionRoutes from "./src/routes/guestSessionRoutes.js";
+import guestSessionRoutes from "./src/routes/GuestSessionRoutes.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
