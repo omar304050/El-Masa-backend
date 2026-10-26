@@ -22,7 +22,7 @@ app.use(cors({
 }));  
 
 app.use(express.json());
-
+app.use(cookieParser());
 connectDB();
 
 app.use("/api/products", productRoutes);

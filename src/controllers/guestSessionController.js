@@ -21,6 +21,7 @@ export const createGuestSession = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      path: "/",
       expires: expiresAt,
     });
 
