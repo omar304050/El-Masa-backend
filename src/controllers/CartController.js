@@ -4,11 +4,12 @@ import Product from "../models/ProductModel.js";
 
 
 
+
 export const  getCart = async (req , res) =>{
     const {cartId} = req.params;
 
     try {
-        const cart = await Cart.findOne({cartId}).populate("items.product");
+        const cart = await Cart.findOne({cartId, guestSession: req.guestSession._id}).populate("items.product");
         if(!cart){
             return res.status(404).json({
                 success: false,
@@ -40,19 +41,20 @@ export const  getCart = async (req , res) =>{
 
 
 
+
 export const createCart = async (req, res) => {
   try {
     const cart = await Cart.create({
       cartId: randomUUID(),
+      guestSession: req.guestSession._id,
       items: [],
     });
-    
-
 
     res.status(201).json({
       message: "Cart created successfully",
       cartId: cart.cartId,
       cart,
+      guestSession: req.guestSession._id,
     });
   } catch (error) {
     res.status(500).json({
@@ -63,12 +65,13 @@ export const createCart = async (req, res) => {
 
 
 
+
 export const addToCart = async (req, res) => {
     try {
       const { cartId } = req.params;
       const { productId, quantity } = req.body;
   
-      const cart = await Cart.findOne({ cartId });
+      const cart = await Cart.findOne({ cartId , guestSession: req.guestSession._id });
   
       if (!cart) {
         return res.status(404).json({
@@ -115,8 +118,9 @@ export const removeFromCart = async (req, res) => {
     try {
       const { cartId } = req.params;
       const { productId } = req.body;
+      const guestSession = req.guestSession._id;
   
-      const cart = await Cart.findOne({ cartId });
+      const cart = await Cart.findOne({ cartId, guestSession });
   
       if (!cart) {
         return res.status(404).json({
@@ -152,7 +156,8 @@ export const removeFromCart = async (req, res) => {
  export const clearCart = async (req, res) => {
     try {
       const { cartId } = req.params;
-      const cart = await Cart.findOne({ cartId });
+      const guestSession = req.guestSession._id;
+      const cart = await Cart.findOne({ cartId, guestSession });
       if (!cart) {
         return res.status(404).json({
           message: "Cart not found",

@@ -1,10 +1,11 @@
-
 import "dotenv/config";
 import express from "express";
 import connectDB from "./src/config/db.js";
 import productRoutes from "./src/routes/ProductRoute.js";
 import cors from "cors";
 import cartRoutes from "./src/routes/CartRoutes.js";
+import guestSessionRoutes from "./src/routes/guestSessionRoutes.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +17,8 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: allowedOrigins
+  origin: allowedOrigins,
+  credentials: true,
 }));  
 
 app.use(express.json());
@@ -25,6 +27,7 @@ connectDB();
 
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/guest-session", guestSessionRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

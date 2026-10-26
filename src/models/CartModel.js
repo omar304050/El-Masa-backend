@@ -8,6 +8,11 @@ const cartSchema = new mongoose.Schema({
         unique: true,
         
     },
+    guestSession: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GuestSession",
+        required: true,
+      },
     items: [
  {    
     product :{
