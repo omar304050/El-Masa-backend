@@ -6,6 +6,7 @@ import cors from "cors";
 import cartRoutes from "./src/routes/CartRoutes.js";
 import guestSessionRoutes from "./src/routes/GuestSessionRoutes.js";
 import cookieParser from "cookie-parser";
+import orderRoutes from "./src/routes/OrderRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,6 +29,7 @@ connectDB();
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/guest-session", guestSessionRoutes);
+app.use("/api/order", orderRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

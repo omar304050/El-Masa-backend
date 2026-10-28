@@ -1,6 +1,6 @@
 import Cart from "../models/CartModel.js";
-import { randomUUID } from "node:crypto";
 import Product from "../models/ProductModel.js"; 
+import { randomUUID } from "node:crypto";
 
 
 
@@ -16,17 +16,40 @@ export const  getCart = async (req , res) =>{
                 message: "Cart not found",
             });
         }
-        const totalQuantity = cart.items.reduce(
-            (sum, item) => sum + item.quantity,
-            0
-          );
-        const totalPrice = cart.items.reduce(
-            (sum, item) => sum + item.product.price * item.quantity,
-            0
-          );
+
+        const itemsWithPrices = cart.items.map((item) => {
+          const product = item.product;
+        
+          const price = product.price;
+          const discount = product.discount;
+        
+          const finalPrice =
+            discount?.isActive && discount.percentage > 0
+              ? price * (1 - discount.percentage / 100)
+              : price;
+        
+          return {
+            ...item.toObject(),
+            finalPrice,
+          };
+        });
+        
+        const totalQuantity = itemsWithPrices.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        
+        const totalPrice = itemsWithPrices.reduce(
+          (sum, item) => sum + item.finalPrice * item.quantity,
+          0
+        );
+        
         res.status(200).json({
             success: true,
-            cart,
+            cart: {
+              ...cart.toObject(),
+              items: itemsWithPrices,
+            },
             totalQuantity,
             totalPrice,
         });

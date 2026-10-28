@@ -3,7 +3,9 @@ import { getCart, createCart, addToCart, removeFromCart ,clearCart} from "../con
 import  verifyGuestSession  from "../middleware/verifyGuestSession.js";
 
 const router = express.Router(); 
-
+console.log("verifyGuestSession:", typeof verifyGuestSession);
+console.log("getCart:", typeof getCart);
+console.log("createCart:", typeof createCart);
 router.get("/:cartId", verifyGuestSession, getCart);
 router.post("/", verifyGuestSession, createCart);
 router.post("/:cartId", verifyGuestSession, addToCart);
