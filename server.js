@@ -13,14 +13,13 @@ const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://el-masa-trade.vercel.app",
-  "https://el-masa-trade-7ija.vercel.app"
+  "https://el-masa-trade-m3yf.vercel.app",
 ];
 
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
-}));  
+})); 
 
 app.use(express.json());
 app.use(cookieParser());
