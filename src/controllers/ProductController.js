@@ -1,6 +1,21 @@
 import Product from "../models/ProductModel.js";
 import cloudinary from "../config/cloudinary.js";
 
+const deleteImageFromCloudinary = async (imageUrl) => {
+  const url = new URL(imageUrl);
+  const parts = url.pathname.split("/");
+
+  const uploadIndex = parts.indexOf("upload");
+  if (uploadIndex === -1) return;
+
+  const publicIdWithExtension = parts
+    .slice(uploadIndex + 2)
+    .join("/");
+
+  const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, "");
+
+  await cloudinary.uploader.destroy(publicId);
+};
 
 const uploadToCloudinary = (file) => {
   return new Promise((resolve, reject) => {
@@ -12,15 +27,12 @@ const uploadToCloudinary = (file) => {
         }
 
         resolve(result);
-      }
+      },
     );
 
     stream.end(file.buffer);
   });
 };
-
-
-
 
 export const createProduct = async (req, res) => {
   try {
@@ -33,19 +45,16 @@ export const createProduct = async (req, res) => {
       discountIsActive,
       discountPercentage: rawDiscountPercentage,
     } = req.body;
-    
+
     const price = Number(rawPrice);
-    
+
     const stock =
-      rawStock === undefined || rawStock === ""
-        ? 0
-        : Number(rawStock);
-    
+      rawStock === undefined || rawStock === "" ? 0 : Number(rawStock);
+
     const discount = {
       isActive: discountIsActive === "true",
       percentage:
-        rawDiscountPercentage === undefined ||
-        rawDiscountPercentage === ""
+        rawDiscountPercentage === undefined || rawDiscountPercentage === ""
           ? 0
           : Number(rawDiscountPercentage),
     };
@@ -75,11 +84,7 @@ export const createProduct = async (req, res) => {
     }
 
     // 3. Validate price
-    if (
-      typeof price !== "number" ||
-      !Number.isFinite(price) ||
-      price < 0
-    ) {
+    if (typeof price !== "number" || !Number.isFinite(price) || price < 0) {
       return res.status(400).json({
         success: false,
         message: "Price must be a valid non-negative number",
@@ -87,35 +92,31 @@ export const createProduct = async (req, res) => {
     }
 
     // 4. Validate stock
-    if (
-      stock !== undefined &&
-      (!Number.isInteger(stock) || stock < 0)
-    ) {
+    if (stock !== undefined && (!Number.isInteger(stock) || stock < 0)) {
       return res.status(400).json({
         success: false,
         message: "Stock must be a non-negative integer",
       });
     }
 
-   // 5. Validate uploaded images
-const files = req.files ?? [];
+    // 5. Validate uploaded images
+    const files = req.files ?? [];
 
-if (files.length > 5) {
-  return res.status(400).json({
-    success: false,
-    message: "Maximum 5 images are allowed",
-  });
-}
+    if (files.length > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum 5 images are allowed",
+      });
+    }
 
-// 6. Upload images to Cloudinary
-const uploadedImages = await Promise.all(
-  files.map(async (file) => {
-    const result = await uploadToCloudinary(file);
-    return result.secure_url;
-  })
-);
+    // 6. Upload images to Cloudinary
+    const uploadedImages = await Promise.all(
+      files.map(async (file) => {
+        const result = await uploadToCloudinary(file);
+        return result.secure_url;
+      }),
+    );
 
-   
     if (discount !== undefined) {
       if (
         typeof discount !== "object" ||
@@ -140,12 +141,10 @@ const uploadedImages = await Promise.all(
 
       if (
         discount.percentage !== undefined &&
-        (
-          typeof discount.percentage !== "number" ||
+        (typeof discount.percentage !== "number" ||
           !Number.isFinite(discount.percentage) ||
           discount.percentage < 0 ||
-          discount.percentage > 100
-        )
+          discount.percentage > 100)
       ) {
         return res.status(400).json({
           success: false,
@@ -176,9 +175,7 @@ const uploadedImages = await Promise.all(
       return res.status(400).json({
         success: false,
         message: "Product validation failed",
-        errors: Object.values(error.errors).map(
-          (err) => err.message
-        ),
+        errors: Object.values(error.errors).map((err) => err.message),
       });
     }
 
@@ -191,18 +188,16 @@ const uploadedImages = await Promise.all(
   }
 };
 
-
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.find();
 
     if (products.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "No products found",
-        });
-      }
-      
+      return res.status(404).json({
+        success: false,
+        message: "No products found",
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -238,14 +233,65 @@ export const getProductById = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
+
+export const editProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      data: product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update product",
+    });
+  }
+};
 
 
-export const editProductById = async ()=>{
+export const deleteProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
 
-  const {id} = req.params; 
-  const {name, description, price, stock, category, discountIsActive, discountPercentage} = req.body;
-  const product = await Product.findByIdAndUpdate(id,req.body);
-  if (!product) return res.status(404).json({ success: false, message: "Product not found" });
-  return res.status(200).json({ success: true, message: "Product updated successfully", data: product });
-}
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    await Promise.all(
+      product.images.map(deleteImageFromCloudinary)
+    );
+
+    await product.deleteOne();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product and images deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete product error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete product or its images",
+    });
+  }
+};
