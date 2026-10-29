@@ -6,7 +6,7 @@ import { getDashboardStats } from "../controllers/AdminController.js";
 const router = express.Router();
 
 router.post("/login", adminLogin);
-router.get("/dashboard", verifyAdmin, getDashboardStats);
+router.get("/dashboard", getDashboardStats);
 
 
 export default router;
