@@ -16,7 +16,15 @@ export const adminLogin = async (req, res) => {
 
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
-
+    console.log({
+      receivedEmail: email,
+      envEmail: process.env.ADMIN_EMAIL,
+      emailMatch: email === process.env.ADMIN_EMAIL,
+      passwordExists: !!process.env.ADMIN_PASSWORD,
+      jwtExists: !!process.env.JWT_SECRET,
+    });
+    
+      
     if (email !== adminEmail || password !== adminPassword) {
       return res.status(401).json({
         success: false,
@@ -49,6 +57,19 @@ export const adminLogin = async (req, res) => {
       message: "Internal server error",
     });
   }
+};
+
+export const adminLogout = (req, res) => {
+  res.clearCookie("adminToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+  });
+
+  return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+  });
 };
 
 
