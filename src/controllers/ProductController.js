@@ -190,20 +190,28 @@ export const createProduct = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { search } = req.query;
 
-    if (products.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No products found",
-      });
+    let filter = {};
+
+    if (search) {
+      filter = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+          { category: { $regex: search, $options: "i" } },
+        ],
+      };
     }
+
+    const products = await Product.find(filter);
 
     res.status(200).json({
       success: true,
       results: products.length,
       data: products,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -239,10 +247,32 @@ export const editProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updateData = { ...req.body };
+
+    if (updateData.discount) {
+      updateData.discount = JSON.parse(updateData.discount);
+    }
+
+    // لو المستخدم رفع صورة جديدة
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        {
+          folder: "el-masa-trade/products",
+        }
+      );
+
+      updateData.images = [result.secure_url];
+    }
+
+    const product = await Product.findByIdAndUpdate(
+      id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!product) {
       return res.status(404).json({

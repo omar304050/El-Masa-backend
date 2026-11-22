@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Product from "../models/ProductModel.js";
+import Order from "../models/OrderModel.js";
 
 export const adminLogin = async (req, res) => {
   try {
@@ -97,6 +98,25 @@ export const getDashboardStats = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Failed to fetch dashboard statistics",
+      });
+    }
+  };
+
+
+  export const getAllOrders = async (req, res) => {
+    try {
+      const orders = await Order.find()
+        .sort({ createdAt: -1 });
+  
+      return res.status(200).json({
+        success: true,
+        results: orders.length,
+        data: orders,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch orders",
       });
     }
   };
